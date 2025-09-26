@@ -33,7 +33,7 @@ export function AdminSidebar({
 	return (
 		<Sidebar {...props}>
 			<SidebarHeader>
-				<div className="flex items-center gap-2 px-2 py-2">
+				<div className="flex w-[220px] items-center gap-2 px-2 py-2">
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
 						<Settings className="h-4 w-4 text-primary-foreground" />
 					</div>
