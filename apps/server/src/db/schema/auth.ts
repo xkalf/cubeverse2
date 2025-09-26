@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
@@ -8,6 +8,11 @@ export const user = sqliteTable("user", {
 	image: text("image"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+	role: text({
+		enum: ["USER", "TEACHER", "ADMIN"],
+	})
+		.notNull()
+		.default("USER"),
 });
 
 export const session = sqliteTable("session", {

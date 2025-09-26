@@ -1,11 +1,11 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import Loader from "./components/loader";
 import "./index.css";
-import { routeTree } from "./routeTree.gen";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 
-export const createRouter = () => {
+export const getRouter = () => {
 	const router = createTanStackRouter({
 		routeTree,
 		scrollRestoration: true,
@@ -22,6 +22,6 @@ export const createRouter = () => {
 
 declare module "@tanstack/react-router" {
 	interface Register {
-		router: ReturnType<typeof createRouter>;
+		router: ReturnType<typeof getRouter>;
 	}
 }
