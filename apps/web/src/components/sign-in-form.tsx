@@ -1,12 +1,19 @@
-import { useForm } from "@tanstack/react-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
 import Loader from "./loader";
 import { Button } from "./ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+
+const loginSchema = z.object({
+	email: z.email("Invalid email address"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export default function SignInForm({
 	onSwitchToSignUp,
@@ -17,37 +24,33 @@ export default function SignInForm({
 		from: "/",
 	});
 	const { isPending } = authClient.useSession();
+	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm({
+		resolver: zodResolver(loginSchema),
 		defaultValues: {
 			email: "",
 			password: "",
 		},
-		onSubmit: async ({ value }) => {
-			await authClient.signIn.email(
-				{
-					email: value.email,
-					password: value.password,
-				},
-				{
-					onSuccess: () => {
-						navigate({
-							to: "/dashboard",
-						});
-						toast.success("Sign in successful");
-					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: z.object({
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
-		},
+	});
+
+	const handleSubmit = form.handleSubmit(async (value) => {
+		setIsLoading(true);
+		const { error } = await authClient.signIn.email({
+			email: value.email,
+			password: value.password,
+		});
+
+		setIsLoading(false);
+
+		if (error) {
+			toast.error(error.message || error.statusText);
+		} else {
+			navigate({
+				to: "/dashboard",
+			});
+			toast.success("Sign in successful");
+		}
 	});
 
 	if (isPending) {
@@ -56,74 +59,43 @@ export default function SignInForm({
 
 	return (
 		<div className="mx-auto mt-10 w-full max-w-md p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl">Welcome Back</h1>
+			<h1 className="mb-6 text-center font-bold text-3xl">Cubeverse</h1>
+			<Form {...form}>
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div className="space-y-2">
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel htmlFor={field.name}>Имэйл</FormLabel>
+									<FormControl>
+										<Input id={field.name} type="email" {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="space-y-2">
+						<FormField
+							control={form.control}
+							name="password"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel htmlFor={field.name}>Нууц үг</FormLabel>
+									<FormControl>
+										<Input id={field.name} type="password" {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
 
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					e.stopPropagation();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
-			>
-				<div>
-					<form.Field name="email">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Email</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="email"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<div>
-					<form.Field name="password">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Password</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="password"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<form.Subscribe>
-					{(state) => (
-						<Button
-							type="submit"
-							className="w-full"
-							disabled={!state.canSubmit || state.isSubmitting}
-						>
-							{state.isSubmitting ? "Submitting..." : "Sign In"}
-						</Button>
-					)}
-				</form.Subscribe>
-			</form>
+					<Button type="submit" className="w-full" disabled={isLoading}>
+						{isLoading ? "Уншиж байна..." : "Нэвтрэх"}
+					</Button>
+				</form>
+			</Form>
 
 			<div className="mt-4 text-center">
 				<Button
@@ -131,7 +103,7 @@ export default function SignInForm({
 					onClick={onSwitchToSignUp}
 					className="text-indigo-600 hover:text-indigo-800"
 				>
-					Need an account? Sign Up
+					Бүртгэлгүй юу? Бүртгүүлэх
 				</Button>
 			</div>
 		</div>

@@ -2,7 +2,9 @@
 	"name": "cubeverse2-server",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-06-15",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"vars": {
 		"NODE_ENV": "production"
 		// Add public environment variables here
@@ -11,7 +13,6 @@
 	// For sensitive data, use:
 	// wrangler secret put SECRET_NAME
 	// Don't add secrets to "vars" - they're visible in the dashboard!
-
 	// To set up D1 database:
 	// 1. Run: wrangler login
 	// 2. Run: wrangler d1 create your-database-name
@@ -22,11 +23,9 @@
 	// wrangler d1 migrations apply YOUR_DB_NAME --local
 	"d1_databases": [
 		{
-			"binding": "DB",
-			"database_name": "YOUR_DB_NAME",
-			"database_id": "YOUR_DB_ID",
-			"preview_database_id": "local-test-db",
-			"migrations_dir": "./src/db/migrations"
+			"binding": "cubeverse",
+			"database_name": "cubeverse",
+			"database_id": "8e9c1a37-6894-4761-b7c5-63c3a93af7ba"
 		}
 	]
 }
